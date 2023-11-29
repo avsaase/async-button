@@ -8,6 +8,7 @@ Async button handling crate for `no_std` environments. Build around `embedded-ha
 let pin = /* Input pin */;
 let mut button = Button::new(pin, ButtonConfig::default());
 
+// In a separate task:
 loop {
     match button.update().await {
         ButtonEvent::ShortPress { count } => {/* Do something with short presses */},
