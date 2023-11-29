@@ -17,7 +17,6 @@ pub struct Button<P> {
 }
 
 #[derive(Debug, Clone, Copy)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 enum State {
     /// Initial state.
     Unknown,
