@@ -79,7 +79,10 @@ where
                     match with_timeout(self.config.long_press, self.wait_for_release()).await {
                         Ok(_) => {
                             // Short press
-                            self.state = State::Released;
+                            self.debounce_delay().await;
+                            if self.is_pin_released() {
+                                self.state = State::Released;
+                            }
                         }
                         Err(_) => {
                             // Long press detected
@@ -122,7 +125,7 @@ where
                 State::PendingRelease => {
                     self.wait_for_release().await;
                     self.debounce_delay().await;
-                    if self.is_pin_releaded() {
+                    if self.is_pin_released() {
                         self.state = State::Idle;
                     }
                 }
@@ -134,7 +137,7 @@ where
         self.pin.is_low().unwrap_or(self.config.mode.is_pulldown()) == self.config.mode.is_pullup()
     }
 
-    fn is_pin_releaded(&self) -> bool {
+    fn is_pin_released(&self) -> bool {
         !self.is_pin_pressed()
     }
 
