@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-embassy-time = { git = "https://github.com/embassy-rs/embassy/" }
-embedded-hal-async = { version = "1.0.0-rc.1" }
-embedded-hal = { version = "1.0.0-rc.1" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy/", version = "0.1.5" }
+embedded-hal-async = { version = "1.0.0-rc.2" }
+embedded-hal = { version = "1.0.0-rc.2" }
 defmt = { version = "0.3.5", optional = true }
 
 [dev-dependencies]
