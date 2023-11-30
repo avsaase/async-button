@@ -22,8 +22,8 @@ enum State {
     Unknown,
     /// Debounced press.
     Pressed,
-    /// The button has been just released, waiting for more presses in the same sequence, or for
-    /// the sequence to end.
+    /// The button was just released, waiting for more presses in the same sequence, or for the
+    /// sequence to end.
     Released,
     /// Fully released state, idle.
     Idle,

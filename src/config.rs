@@ -4,20 +4,19 @@ use super::Duration;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ButtonConfig {
-    /// How much time the button should be pressed to in order to count it as a click.
+    /// Time the button should be down in order to count it as a press.
     pub debounce: Duration,
-    /// How much time the button between consecutive clicks to count as a double click.
+    /// Time between consecutive presses to count as a press in the same sequence instead of a new
+    /// sequence.
     pub double_click: Duration,
-    /// How much time the button is held before a long press is detected.
+    /// Time the button is held before a long press is detected.
     pub long_press: Duration,
     /// Button direction.
     pub mode: Mode,
 }
 
 impl ButtonConfig {
-    /// Returns new [ButtonConfig].
-    ///
-    /// As a general rule, `debounce` time is less then `double_click` time and `long_press` time is larger than both.
+    /// Returns a new [ButtonConfig].
     pub fn new(
         debounce: Duration,
         double_click: Duration,
