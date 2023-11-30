@@ -103,7 +103,7 @@ where
                             }
                         }
                         Err(_) => {
-                            // Sequece ended
+                            // Sequence ended
                             let count = self.count;
                             self.count = 0;
                             self.state = State::Idle;

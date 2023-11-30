@@ -19,4 +19,4 @@ loop {
 
 ## Features
 
-- `defmt`: derives `defmt::Format` on [`ButtonConfig`] and [`ButtonEvent`].
+- `defmt`: derives `defmt::Format` on public types (except `Button`).
