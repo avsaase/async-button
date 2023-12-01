@@ -1,11 +1,22 @@
 #![doc = include_str!("../README.md")]
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![warn(missing_docs)]
 
 pub use config::{ButtonConfig, Mode};
-use embassy_time::{with_timeout, Duration, Timer};
 
 mod config;
+
+#[cfg(test)]
+mod tests;
+
+cfg_if::cfg_if! {
+    if #[cfg(not(test))] {
+        use embassy_time::{with_timeout, Duration, Timer};
+    } else {
+        use std::time::Duration;
+        use tokio::time::timeout as with_timeout;
+    }
+}
 
 /// A generic button that asynchronously detects [`ButtonEvent`]s.
 #[derive(Debug, Clone, Copy)]
@@ -65,69 +76,80 @@ where
     /// **not** be called from tasks where blocking for long periods of time is not desireable.
     pub async fn update(&mut self) -> ButtonEvent {
         loop {
-            match self.state {
-                State::Unknown => {
-                    if self.is_pin_pressed() {
-                        self.state = State::Pressed;
-                    } else {
+            if let Some(event) = self.update_step().await {
+                return event;
+            }
+        }
+    }
+
+    async fn update_step(&mut self) -> Option<ButtonEvent> {
+        match self.state {
+            State::Unknown => {
+                if self.is_pin_pressed() {
+                    self.state = State::Pressed;
+                } else {
+                    self.state = State::Idle;
+                }
+                None
+            }
+
+            State::Pressed => {
+                match with_timeout(self.config.long_press, self.wait_for_release()).await {
+                    Ok(_) => {
+                        // Short press
+                        self.debounce_delay().await;
+                        if self.is_pin_released() {
+                            self.state = State::Released;
+                        }
+                        None
+                    }
+                    Err(_) => {
+                        // Long press detected
+                        self.count = 0;
+                        self.state = State::PendingRelease;
+                        Some(ButtonEvent::LongPress)
+                    }
+                }
+            }
+
+            State::Released => {
+                match with_timeout(self.config.double_click, self.wait_for_press()).await {
+                    Ok(_) => {
+                        // Continue sequence
+                        self.debounce_delay().await;
+                        if self.is_pin_pressed() {
+                            self.count += 1;
+                            self.state = State::Pressed;
+                        }
+                        None
+                    }
+                    Err(_) => {
+                        // Sequence ended
+                        let count = self.count;
+                        self.count = 0;
                         self.state = State::Idle;
+                        Some(ButtonEvent::ShortPress { count })
                     }
                 }
+            }
 
-                State::Pressed => {
-                    match with_timeout(self.config.long_press, self.wait_for_release()).await {
-                        Ok(_) => {
-                            // Short press
-                            self.debounce_delay().await;
-                            if self.is_pin_released() {
-                                self.state = State::Released;
-                            }
-                        }
-                        Err(_) => {
-                            // Long press detected
-                            self.count = 0;
-                            self.state = State::PendingRelease;
-                            return ButtonEvent::LongPress;
-                        }
-                    }
+            State::Idle => {
+                self.wait_for_press().await;
+                self.debounce_delay().await;
+                if self.is_pin_pressed() {
+                    self.count = 1;
+                    self.state = State::Pressed;
                 }
+                None
+            }
 
-                State::Released => {
-                    match with_timeout(self.config.double_click, self.wait_for_press()).await {
-                        Ok(_) => {
-                            // Continue sequence
-                            self.debounce_delay().await;
-                            if self.is_pin_pressed() {
-                                self.count += 1;
-                                self.state = State::Pressed;
-                            }
-                        }
-                        Err(_) => {
-                            // Sequence ended
-                            let count = self.count;
-                            self.count = 0;
-                            self.state = State::Idle;
-                            return ButtonEvent::ShortPress { count };
-                        }
-                    };
+            State::PendingRelease => {
+                self.wait_for_release().await;
+                self.debounce_delay().await;
+                if self.is_pin_released() {
+                    self.state = State::Idle;
                 }
-
-                State::Idle => {
-                    self.wait_for_press().await;
-                    self.debounce_delay().await;
-                    if self.is_pin_pressed() {
-                        self.count = 1;
-                        self.state = State::Pressed;
-                    }
-                }
-
-                State::PendingRelease => {
-                    self.wait_for_release().await;
-                    self.debounce_delay().await;
-                    if self.is_pin_released() {
-                        self.state = State::Idle;
-                    }
-                }
+                None
             }
         }
     }
@@ -155,6 +177,16 @@ where
     }
 
     async fn debounce_delay(&self) {
-        Timer::after(self.config.debounce).await;
+        delay(self.config.debounce).await;
+    }
+}
+
+async fn delay(duration: Duration) {
+    cfg_if::cfg_if! {
+        if #[cfg(not(test))] {
+            Timer::after(duration).await;
+        } else {
+            tokio::time::sleep(duration).await;
+        }
     }
 }
