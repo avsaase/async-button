@@ -1,6 +1,6 @@
 # Async Button
 
-Async button handling crate for `no_std` environments. Build around `embedded-hal 1.0` traits and `embassy-time`.
+Async button handling crate for `no_std` environments. Built around `embedded-hal 1.0` traits and `embassy-time`.
 
 ## Example
 
@@ -20,3 +20,14 @@ loop {
 ## Features
 
 - `defmt`: derives `defmt::Format` on public types (except `Button`).
+
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0
+   ([LICENSE-APACHE](LICENSE-APACHE))
+- MIT license
+   ([LICENSE-MIT](LICENSE-MIT))
+   
+at your option.

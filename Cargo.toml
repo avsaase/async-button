@@ -2,6 +2,13 @@
 name = "async-button"
 version = "0.1.0"
 edition = "2021"
+authors = ["Alexander van Saase <avsaase at gmail dot com>"]
+description = "Async button handling crate for no_std environments"
+keywords = ["no_std", "async", "embassy", "button", "embedded"]
+categories = ["no-std", "embedded", "asynchronous"]
+repository = "https://github.com/avsaase/async-button"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 embassy-time = { git = "https://github.com/embassy-rs/embassy/", version = "0.1.5" }
