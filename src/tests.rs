@@ -13,6 +13,8 @@ const CONFIG: ButtonConfig = ButtonConfig {
     mode: Mode::PullUp,
 };
 
+const IMMEDIATELY: Duration = Duration::from_millis(0);
+
 #[tokio::test(start_paused = true)]
 async fn start_idle() {
     let expectations = [Transaction::new(Kind::Get(PinState::High))];
@@ -42,9 +44,9 @@ async fn start_pressed() {
 #[tokio::test]
 async fn single_press() {
     let expectations = [
-        Transaction::wait_for_state(PinState::Low, Duration::from_millis(10)),
+        Transaction::wait_for_state(PinState::Low, IMMEDIATELY),
         Transaction::get(PinState::Low),
-        Transaction::wait_for_state(PinState::High, Duration::from_millis(10)),
+        Transaction::wait_for_state(PinState::High, IMMEDIATELY),
         Transaction::get(PinState::High),
     ];
     let pin = Mock::new(&expectations);
@@ -66,10 +68,10 @@ async fn single_press() {
 #[tokio::test]
 async fn long_press() {
     let expectations = [
-        Transaction::wait_for_state(PinState::Low, Duration::from_millis(10)),
+        Transaction::wait_for_state(PinState::Low, IMMEDIATELY),
         Transaction::get(PinState::Low),
         Transaction::wait_for_state(PinState::High, Duration::from_millis(250)),
-        Transaction::wait_for_state(PinState::High, Duration::from_millis(10)),
+        Transaction::wait_for_state(PinState::High, IMMEDIATELY),
         Transaction::get(PinState::High),
     ];
     let pin = Mock::new(&expectations);
@@ -94,7 +96,7 @@ async fn long_press() {
 #[tokio::test]
 async fn debounce_press() {
     let expectations = [
-        Transaction::wait_for_state(PinState::Low, Duration::from_millis(10)),
+        Transaction::wait_for_state(PinState::Low, IMMEDIATELY),
         Transaction::get(PinState::High),
     ];
     let pin = Mock::new(&expectations);
@@ -111,7 +113,7 @@ async fn debounce_press() {
 #[tokio::test]
 async fn debounce_release() {
     let expectations = [
-        Transaction::wait_for_state(PinState::High, Duration::from_millis(10)),
+        Transaction::wait_for_state(PinState::High, IMMEDIATELY),
         Transaction::get(PinState::Low),
     ];
     let pin = Mock::new(&expectations);
@@ -121,6 +123,46 @@ async fn debounce_release() {
     let event = button.update_step().await;
     assert_none!(event);
     assert_matches!(button.state, State::Pressed);
+
+    button.pin.done();
+}
+
+#[tokio::test]
+async fn double_click() {
+    let expectations = [
+        Transaction::wait_for_state(PinState::Low, IMMEDIATELY),
+        Transaction::get(PinState::Low),
+        Transaction::wait_for_state(PinState::High, IMMEDIATELY),
+        Transaction::get(PinState::High),
+        Transaction::wait_for_state(PinState::Low, IMMEDIATELY),
+        Transaction::get(PinState::Low),
+        Transaction::wait_for_state(PinState::High, IMMEDIATELY),
+        Transaction::get(PinState::High),
+        Transaction::wait_for_state(PinState::Low, Duration::from_millis(250)),
+    ];
+    let pin = Mock::new(&expectations);
+    let mut button = Button::new(pin, CONFIG);
+    button.state = State::Idle;
+
+    let event = button.update_step().await;
+    assert_none!(event);
+    assert_matches!(button.state, State::Pressed);
+
+    let event = button.update_step().await;
+    assert_none!(event);
+    assert_matches!(button.state, State::Released);
+
+    let event = button.update_step().await;
+    assert_none!(event);
+    assert_matches!(button.state, State::Pressed);
+
+    let event = button.update_step().await;
+    assert_none!(event);
+    assert_matches!(button.state, State::Released);
+
+    let event = button.update_step().await;
+    assert_some_eq!(event, ButtonEvent::ShortPress { count: 2 });
+    assert_matches!(button.state, State::Idle);
 
     button.pin.done();
 }
