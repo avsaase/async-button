@@ -13,7 +13,7 @@ embedded-hal = "1.0.0-rc.2"
 defmt = { version = "0.3.5", optional = true }
 
 [dev-dependencies]
-embedded-hal-mock = { path = "../embedded-hal-mock", default-features = false, features = [
+embedded-hal-mock = { version = "0.10.0-rc.3", default-features = false, features = [
     "eh1",
     "embedded-time",
     "embedded-hal-async",
@@ -24,3 +24,6 @@ claims = "0.7.1"
 [features]
 default = []
 defmt = ["dep:defmt", "embassy-time/defmt"]
+
+[patch.crates-io]
+embedded-hal-mock = { git = "https://github.com/avsaase/embedded-hal-mock/", rev = "bec7a531d1e91fa19ef43abfb4af629000b15e90" }
