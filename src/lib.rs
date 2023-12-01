@@ -10,11 +10,11 @@ mod config;
 mod tests;
 
 cfg_if::cfg_if! {
-    if #[cfg(not(test))] {
-        use embassy_time::{with_timeout, Duration, Timer};
-    } else {
+    if #[cfg(any(test, feature = "std"))] {
         use std::time::Duration;
         use tokio::time::timeout as with_timeout;
+    } else {
+        use embassy_time::{with_timeout, Duration, Timer};
     }
 }
 
@@ -183,10 +183,10 @@ where
 
 async fn delay(duration: Duration) {
     cfg_if::cfg_if! {
-        if #[cfg(not(test))] {
-            Timer::after(duration).await;
-        } else {
+        if #[cfg(any(test, feature = "std"))] {
             tokio::time::sleep(duration).await;
+        } else {
+            Timer::after(duration).await;
         }
     }
 }

@@ -1,5 +1,3 @@
-// use std::assert_matches::assert_matches;
-
 use claims::{assert_matches, assert_none, assert_some_eq};
 use embedded_hal_mock::eh1::pin::{Mock, State as PinState, Transaction, TransactionKind as Kind};
 
