@@ -1,6 +1,6 @@
 use super::Duration;
 
-/// Various [`Button`](super::Button) parameters.
+/// [`Button`](super::Button) configuration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ButtonConfig {
@@ -47,20 +47,20 @@ impl Default for ButtonConfig {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Mode {
-    /// Active 0.
+    /// Button is connected to a pin with a pull-up resistor. Button pressed it logic 0.
     #[default]
     PullUp,
-    /// Active 1.
+    /// Button is connected to a pin with a pull-down resistor. Button pressed it logic 1.
     PullDown,
 }
 
 impl Mode {
-    /// Is button activated by logic zero?
+    /// Is button connected to a pin with a pull-up resistor?
     pub const fn is_pullup(&self) -> bool {
         matches!(self, Mode::PullUp)
     }
 
-    /// Is button activated by logic one?
+    /// Is button connected to a pin with a pull-down resistor?
     pub const fn is_pulldown(&self) -> bool {
         !self.is_pullup()
     }

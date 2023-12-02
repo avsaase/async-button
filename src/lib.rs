@@ -43,7 +43,7 @@ enum State {
 }
 
 /// Detected button events
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ButtonEvent {
     /// A sequence of 1 or more short presses.
