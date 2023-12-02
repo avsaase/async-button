@@ -5,20 +5,32 @@ on:
 
 jobs:
   test:
-    name: cargo test
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - run: cargo test --all-features
- 
+      - name: Run tests
+        run: cargo test --all-features
+    
   formatting:
-    name: cargo fmt
+    name: Rustfmt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: rustfmt
-      - name: Rustfmt Check
-        uses: actions-rust-lang/rustfmt@v1
+      - name: Run rustfmt
+        run: cargo fmt
+
+  linting:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features
