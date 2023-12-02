@@ -30,6 +30,8 @@ async fn short_press() {
 
     let event = button.update().await;
     assert_matches!(event, ButtonEvent::ShortPress { count: 1 });
+
+    verify_no_event(&mut button).await;
 }
 
 #[tokio::test]
@@ -53,10 +55,8 @@ async fn double_press() {
 
     let event = button.update().await;
     assert_matches!(event, ButtonEvent::ShortPress { count: 2 });
-    assert_err!(
-        timeout(Duration::from_millis(500), button.update()).await,
-        "Unexpected event"
-    );
+
+    verify_no_event(&mut button).await;
 }
 
 #[tokio::test]
@@ -76,10 +76,8 @@ async fn long_press() {
 
     let event = button.update().await;
     assert_matches!(event, ButtonEvent::LongPress);
-    assert_err!(
-        timeout(Duration::from_millis(500), button.update()).await,
-        "Unexpected event"
-    );
+
+    verify_no_event(&mut button).await;
 }
 
 #[tokio::test]
@@ -105,10 +103,8 @@ async fn two_short_presses() {
     assert_matches!(event, ButtonEvent::ShortPress { count: 1 });
     let event = button.update().await;
     assert_matches!(event, ButtonEvent::ShortPress { count: 1 });
-    assert_err!(
-        timeout(Duration::from_millis(500), button.update()).await,
-        "Unexpected event"
-    );
+
+    verify_no_event(&mut button).await;
 }
 
 #[tokio::test]
@@ -130,10 +126,8 @@ async fn debounce() {
 
     let event = button.update().await;
     assert_matches!(event, ButtonEvent::ShortPress { count: 1 });
-    assert_err!(
-        timeout(Duration::from_millis(500), button.update()).await,
-        "Unexpected event"
-    );
+
+    verify_no_event(&mut button).await;
 }
 
 #[derive(Debug, Clone)]
@@ -218,4 +212,11 @@ impl Error for MockError {
 
 async fn sleep_millis(millis: u64) {
     tokio::time::sleep(Duration::from_millis(millis)).await;
+}
+
+async fn verify_no_event(button: &mut Button<MockPin>) {
+    assert_err!(
+        timeout(Duration::from_millis(500), button.update()).await,
+        "Unexpected event"
+    );
 }
