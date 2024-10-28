@@ -154,11 +154,11 @@ where
         }
     }
 
-    fn is_pin_pressed(&self) -> bool {
+    fn is_pin_pressed(&mut self) -> bool {
         self.pin.is_low().unwrap_or(self.config.mode.is_pulldown()) == self.config.mode.is_pullup()
     }
 
-    fn is_pin_released(&self) -> bool {
+    fn is_pin_released(&mut self) -> bool {
         !self.is_pin_pressed()
     }
 

@@ -151,14 +151,14 @@ impl MockPin {
 }
 
 impl embedded_hal::digital::InputPin for MockPin {
-    fn is_high(&self) -> Result<bool, Self::Error> {
+    fn is_high(&mut self) -> Result<bool, Self::Error> {
         match self.0.try_read() {
             Ok(rw) => Ok(*rw),
             Err(_) => Err(MockError),
         }
     }
 
-    fn is_low(&self) -> Result<bool, Self::Error> {
+    fn is_low(&mut self) -> Result<bool, Self::Error> {
         match self.0.try_read() {
             Ok(rw) => Ok(!*rw),
             Err(_) => Err(MockError),
