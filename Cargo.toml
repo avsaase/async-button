@@ -13,7 +13,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 cfg-if = "1.0.0"
 
-embassy-time = { version = "0.3.2" }
+embassy-time = { version = "0.4.0" }
 embedded-hal-async = "1.0.0"
 embedded-hal = "1.0.0"
 defmt = { version = "0.3.5", optional = true }
@@ -21,13 +21,13 @@ defmt = { version = "0.3.5", optional = true }
 tokio = { version = "1.34.0", default-features = false, optional = true }
 
 [dev-dependencies]
-embedded-hal-mock = { version = "0.10.0", default-features = false, features = [
+embedded-hal-mock = { version = "0.11.1", default-features = false, features = [
     "eh1",
     "embedded-time",
     "embedded-hal-async",
 ] }
 tokio = { version = "1.34.0", features = ["rt", "macros", "time", "test-util"] }
-claims = "0.7.1"
+claims = "0.8.0"
 
 [features]
 default = []
@@ -35,4 +35,4 @@ defmt = ["dep:defmt", "embassy-time/defmt"]
 std = ["dep:tokio"]
 
 [patch.crates-io]
-embedded-hal-mock = { git = "https://github.com/avsaase/embedded-hal-mock/", rev = "bec7a531d1e91fa19ef43abfb4af629000b15e90" }
+embedded-hal-mock = { git = "https://github.com/avsaase/embedded-hal-mock/", rev = "8754d222abc91c109ade0f003f276b58cf4c126d" }
